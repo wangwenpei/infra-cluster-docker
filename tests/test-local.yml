@@ -1,0 +1,7 @@
+---
+- hosts: all
+  vars:
+    DOCKER_VERSION: "18.09.2"
+    CONTAINERD_VERSION: "1.2.2"
+  roles:
+    - 01-infra-docker

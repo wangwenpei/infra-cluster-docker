@@ -1,0 +1,25 @@
+- name: Check Docker Initial Status
+  command: test -f /opt/infra-cluster-docker-inited
+  register: installed
+  ignore_errors: True
+
+- name: Try Get Current Docker Version
+  shell: docker --version  | awk '{print $3}' | tr -d ',' | tr -d '\n'
+  register: docker_version
+  ignore_errors: True
+
+- name: Try Get Current Containerd Version
+  shell: containerd --version  | awk '{print $3}' | tr -d '\n'
+  register: containerd_version
+  ignore_errors: True
+
+- import_tasks: install.yml
+  when: installed is failed
+    or DOCKER_INSTALL_MODE in ["replace"]
+    or docker_version.stdout != DOCKER_VERSION
+    or containerd_version.stdout != CONTAINERD_VERSION
+
+- name: Protect Docker Install
+  file: >
+    path=/opt/infra-cluster-docker-inited
+    state=touch

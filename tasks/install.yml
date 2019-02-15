@@ -1,0 +1,77 @@
+- name: Install Docker Depends tools
+  yum: name={{ item }} state=present
+  with_items:
+    - yum-utils
+    - device-mapper-persistent-data
+    - lvm2
+
+- name: Sync Kernel Config
+  copy: src={{ item.src }} dest={{ item.dest }}
+  with_items:
+    - { src: 'kernel4docker.conf', dest: '/etc/modprobe.d/99-docker.conf' }
+
+- name: Add Docker Repository
+  yum_repository:
+    name: docker-ce
+    description: Docker-CE YUM repo
+    baseurl: https://download.docker.com/linux/centos/7/$basearch/stable
+    gpgcheck: yes
+    gpgkey: https://download.docker.com/linux/centos/gpg
+
+- name: Install Docker
+  yum:
+    name: "{{item}}"
+    state: present
+    allow_downgrade: True
+  with_items:
+    - "docker-ce-{{ DOCKER_VERSION }}"
+    - "docker-ce-cli"
+    - "containerd.io-{{ CONTAINERD_VERSION }}"
+
+- name: Ensure Docker Config Directory Exist
+  file: >
+    path=/root/.docker
+    recurse=yes
+    state=directory
+
+#- name: Ensure Global Config Directory Exist
+#  file: >
+#    path=/configs/docker
+#    recurse=yes
+#    state=directory
+
+- name: Copy Docker Config Files
+  copy: src={{ item.src }} dest={{ item.dest }}
+  with_items:
+    - { src: '{{ DOCKER_AUTH_FILE }}', dest: '/root/.docker/config.json' }
+#    - { src: '{{ DOCKER_AUTH_FILE }}', dest: '/configs/docker/config.json' }
+  when: DOCKER_AUTH_FILE is defined
+
+
+- name: Render Docker Service Files
+  template: src={{ item.src }} dest={{ item.dest }}
+  with_items:
+    - src: 'docker-garbage-collector.service'
+      dest: '/etc/systemd/system/'
+    - src: 'docker-garbage-collector.timer'
+      dest: '/etc/systemd/system/'
+    - src: 'daemon.json'
+      dest: '/etc/docker/'
+
+- name: Restart Docker
+  systemd:
+    name: docker
+    enabled: yes
+    daemon_reload: yes
+    state: restarted
+
+- name: Enable Garbage Collector
+  systemd:
+      name: "{{ item }}"
+      state: restarted
+      daemon_reload: yes
+      enabled: yes
+  with_items:
+    - "docker-garbage-collector"
+    - "docker-garbage-collector.timer"
+  when: DOCKER_ENABLE_PURGE == true

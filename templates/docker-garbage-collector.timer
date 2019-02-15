@@ -1,0 +1,11 @@
+[Unit]
+Description=Docker Garbage Collector Scheduler
+
+[Timer]
+# OnBootSec=1min
+# OnUnitActiveSec=30min
+OnCalendar=*-*-* 03:00:00
+
+
+[Install]
+WantedBy=timers.target

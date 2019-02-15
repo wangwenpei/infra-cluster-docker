@@ -1,0 +1,8 @@
+{
+  "exec-opts": ["native.cgroupdriver=cgroupfs"],
+  "registry-mirrors": {{ DOCKER_MIRROR_HOSTS }},
+  "log-opts" : {
+    "max-file" : "{{ DOCKER_LOG_MAX_FILE }}",
+    "max-size" : "{{ DOCKER_LOG_MAX_SIZE }}"
+  }
+}

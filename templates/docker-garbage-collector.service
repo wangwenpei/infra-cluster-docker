@@ -1,0 +1,10 @@
+[Unit]
+Description=Docker Garbage Collector
+After=docker.service
+
+[Service]
+Type=oneshot
+ExecStart=/bin/sh -c "docker system prune -f --volumes"
+
+[Install]
+WantedBy=multi-user.target

@@ -1,0 +1,15 @@
+---
+DOCKER_LOG_MAX_FILE: 1
+DOCKER_LOG_MAX_SIZE: 1g
+DOCKER_MIRROR_HOST: ""
+DOCKER_CONFIG_FILE: ""
+
+DOCKER_VERSION: "18.09.2"     # yum list docker-ce --showduplicates | sort -r
+CONTAINERD_VERSION: "1.2.2"
+DOCKER_INSTALL_MODE: once
+DOCKER_ENABLE_PURGE: true
+DOCKER_REPO: "https://download.docker.com/linux/centos/7/$basearch/stable"
+DOCKER_MIRROR_HOSTS: []
+
+#optional
+#DOCKER_AUTH_FILE: docker-auth.json
