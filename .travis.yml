@@ -1,22 +1,50 @@
 ---
-language: python
-python:
-  - "3.5"
-  - "3.6"
-  - "nightly"
-
+sudo: required
 env:
-  - SITE=test.yml
+  - distribution: centos
+    version: 7
+#  - distribution: fedora
+#    version: 29
+#  - distribution: fedora
+#    version: 28
+#  - distribution: fedora
+#    version: 27
+#  - distribution: fedora
+#    version: 26
+#  - distribution: fedora
+#    version: 25
+#  - distribution: fedora
+#    version: 24
+#  - distribution: ubuntu
+#    version: bionic
+#  - distribution: ubuntu
+#    version: xenial
+#  - distribution: ubuntu
+#    version: trusty
+#  - distribution: debian
+#    version: stretch
+#  - distribution: debian
+#    version: jessie
+
+services:
+  - docker
 
 before_install:
-  - sudo apt-get update -qq
-  - sudo apt-get install -y curl
+  - 'sudo docker pull ${distribution}:${version}'
+  - 'sudo docker build --no-cache --rm --file=travis/Dockerfile.${distribution}-${version} --tag=${distribution}-${version}:ansible travis'
 
-install:
-  - pip install ansible
-
-  # Add ansible.cfg to pick up roles path.
-  - "echo '[defaults]\nroles_path = ../' > ansible.cfg"
 
 script:
-  - "ansible-playbook -i tests/inventory tests/$SITE --syntax-check"
+  - container_id=$(mktemp)
+  - 'sudo docker run --detach --privileged -v /sys/fs/cgroup:/sys/fs/cgroup:ro --volume="${PWD}":/etc/ansible/roles/test_role:rw ${distribution}-${version}:ansible > "${container_id}"'
+  - 'sudo docker exec "$(cat ${container_id})" env ANSIBLE_FORCE_COLOR=1 ansible-playbook -v /etc/ansible/roles/test_role/travis/test.yml --syntax-check'
+  - 'sudo docker exec "$(cat ${container_id})" env ANSIBLE_FORCE_COLOR=1 ansible-playbook -v /etc/ansible/roles/test_role/travis/test.yml'
+  - >
+    sudo docker exec "$(cat ${container_id})" env ANSIBLE_FORCE_COLOR=1 ansible-playbook -v /etc/ansible/roles/test_role/travis/test.yml
+    | grep -q 'changed=.*failed=0'
+    && (echo 'test result: pass' && exit 0)
+    || (echo 'test result: fail' && exit 1)
+  - 'sudo docker rm -f "$(cat ${container_id})"'
+
+notifications:
+    webhooks: https://galaxy.ansible.com/api/v1/notifications/
