@@ -11,5 +11,8 @@ DOCKER_ENABLE_PURGE: true
 DOCKER_REPO: "https://download.docker.com/linux/centos/7/$basearch/stable"
 DOCKER_MIRROR_HOSTS: []
 
+INFRA_DOCKER_WORKSPACE: "/opt/infra-cluster/docker"
+INFRA_DOCKER_LOCK: "/opt/infra-cluster/docker/inited"
+
 #optional
 #DOCKER_AUTH_FILE: docker-auth.json

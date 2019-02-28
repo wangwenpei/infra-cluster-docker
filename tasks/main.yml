@@ -1,17 +1,26 @@
+- name: Confirm Docker Workspace Exist
+  file: >
+    path="{{ INFRA_DOCKER_WORKSPACE }}"
+    recurse=yes
+    state=directory
+
 - name: Check Docker Initial Status
-  command: test -f /opt/infra-cluster-docker-inited
+  command: "test -f {{ INFRA_DOCKER_LOCK }}"
   register: installed
   ignore_errors: True
+  changed_when: False
 
 - name: Try Get Current Docker Version
   shell: docker --version  | awk '{print $3}' | tr -d ',' | tr -d '\n'
   register: docker_version
   ignore_errors: True
+  changed_when: False
 
 - name: Try Get Current Containerd Version
   shell: containerd --version  | awk '{print $3}' | tr -d '\n'
   register: containerd_version
   ignore_errors: True
+  changed_when: False
 
 - import_tasks: install.yml
   when: installed is failed
@@ -21,5 +30,6 @@
 
 - name: Protect Docker Install
   file: >
-    path=/opt/infra-cluster-docker-inited
+    path="{{ INFRA_DOCKER_LOCK }}"
     state=touch
+  changed_when: False
