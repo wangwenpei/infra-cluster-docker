@@ -1,14 +1,15 @@
 - name: Install Docker Depends tools
-  yum: name={{ item }} state=present
-  with_items:
-    - yum-utils
-    - device-mapper-persistent-data
-    - lvm2
+  yum:
+    state: present
+    name:
+      - yum-utils
+      - device-mapper-persistent-data
+      - lvm2
 
 - name: Sync Kernel Config
   copy: src={{ item.src }} dest={{ item.dest }}
   with_items:
-    - { src: 'kernel4docker.conf', dest: '/etc/modprobe.d/99-docker.conf' }
+    - { src: 'kernel4docker.conf', dest: '/etc/modules-load.d/99-docker.conf' }
 
 - name: Add Docker Repository
   yum_repository:
@@ -20,13 +21,13 @@
 
 - name: Install Docker
   yum:
-    name: "{{item}}"
+
     state: present
     allow_downgrade: True
-  with_items:
-    - "docker-ce-{{ DOCKER_VERSION }}"
-    - "docker-ce-cli"
-    - "containerd.io-{{ CONTAINERD_VERSION }}"
+    name:
+      - "docker-ce-{{ DOCKER_VERSION }}"
+      - "docker-ce-cli"
+      - "containerd.io-{{ CONTAINERD_VERSION }}"
 
 - name: Ensure Docker Config Directory Exist
   file: >

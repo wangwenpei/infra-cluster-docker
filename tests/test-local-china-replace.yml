@@ -1,0 +1,9 @@
+---
+- hosts: all
+  vars:
+    DOCKER_VERSION: "18.09.0"
+    CONTAINERD_VERSION: "1.2.2"
+    DOCKER_INSTALL_MODE: replace
+    DOCKER_REPO: "https://mirrors.aliyun.com/docker-ce/linux/centos/7/$basearch/stable"
+  roles:
+    - 01-infra-docker
