@@ -11,6 +11,9 @@
   with_items:
     - { src: 'kernel4docker.conf', dest: '/etc/modules-load.d/99-docker.conf' }
 
+- name: Load Module Immediately
+  shell: "for v in `cat /etc/modules-load.d/99-docker.conf`;do modprobe $v;done"
+
 - name: Add Docker Repository
   yum_repository:
     name: docker-ce
