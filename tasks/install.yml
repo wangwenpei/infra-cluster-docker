@@ -1,10 +1,11 @@
-- name: Install Docker Depends tools
+- name: Install Docker Depends Tools and Kernel Module
   yum:
     state: present
     name:
       - yum-utils
       - device-mapper-persistent-data
       - lvm2
+      - ipvsadm
 
 - name: Sync Kernel Config
   copy: src={{ item.src }} dest={{ item.dest }}
