@@ -1,0 +1,15 @@
+# Unstable
+#- name: Add Docker Arm Repository
+#  yum_repository:
+#    name: docker-ce
+#    description: Docker-CE YUM repo
+#    baseurl: https://archive.fedoraproject.org/pub/archive/fedora/linux/releases/22/Everything/armhfp/os/
+#    gpgcheck: yes
+#    gpgkey: https://getfedora.org/static/8E1431D5.txt
+#
+#- name: Install Docker on Arm
+#  yum:
+#    state: present
+#    allow_downgrade: True
+#    name:
+#      - "docker"

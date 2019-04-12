@@ -1,0 +1,16 @@
+- name: Add Docker x86 Repository
+  yum_repository:
+    name: docker-ce
+    description: Docker-CE YUM repo
+    baseurl: https://download.docker.com/linux/centos/7/$basearch/stable
+    gpgcheck: yes
+    gpgkey: https://download.docker.com/linux/centos/gpg
+
+- name: Install Docker on x86
+  yum:
+    state: present
+    allow_downgrade: True
+    name:
+      - "docker-ce-{{ DOCKER_VERSION }}"
+      - "docker-ce-cli"
+      - "containerd.io-{{ CONTAINERD_VERSION }}"

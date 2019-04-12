@@ -1,0 +1,16 @@
+# 仅供备忘，未使用
+- name: Install Docker use Direct Mode
+  get_url:
+    url: https://get.docker.com
+    dest: "/root/docker-init.sh"
+    mode: 0775
+    checksum: "sha256:{{ GET_DOCKER_SIGN | default('57796aebb75426e4141c9f809607e3ec69b8a41174efffe5e283b24b13525f66') }}"
+    # ↑↑↑↑ 通过限制签名来保证不会及时跟进版本或者伪造
+
+- name: Run Docker Install Scripts
+  shell: "/root/docker-init.sh --mirror {{ DOCKER_MIRROR }}"
+  when: DOCKER_MIRROR is defined
+
+- name: Run Docker Install Scripts
+  shell: "/root/docker-init.sh"
+  when: DOCKER_MIRROR is not defined

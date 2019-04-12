@@ -1,0 +1,22 @@
+- name: Install Docker Depends Tools and Kernel Module
+  yum:
+    state: present
+    name:
+      - yum-utils
+      - device-mapper-persistent-data
+      - lvm2
+      - ipvsadm
+
+- name: Sync Kernel Config
+  copy: src={{ item.src }} dest={{ item.dest }}
+  with_items:
+    - { src: 'kernel4docker.conf', dest: '/etc/modules-load.d/99-docker.conf' }
+
+- name: Load Module Immediately
+  shell: "for v in `cat /etc/modules-load.d/99-docker.conf`;do modprobe $v;done"
+
+- import_tasks: centos/x86.yml
+  when: ARM_CORE is not defined
+
+- import_tasks: centos/arm.yml
+  when: ARM_CORE is defined

@@ -1,37 +1,8 @@
-- name: Install Docker Depends Tools and Kernel Module
-  yum:
-    state: present
-    name:
-      - yum-utils
-      - device-mapper-persistent-data
-      - lvm2
-      - ipvsadm
+- import_tasks: ./distros/centos.yml
+  when: ansible_distribution == 'CentOS'
 
-- name: Sync Kernel Config
-  copy: src={{ item.src }} dest={{ item.dest }}
-  with_items:
-    - { src: 'kernel4docker.conf', dest: '/etc/modules-load.d/99-docker.conf' }
-
-- name: Load Module Immediately
-  shell: "for v in `cat /etc/modules-load.d/99-docker.conf`;do modprobe $v;done"
-
-- name: Add Docker Repository
-  yum_repository:
-    name: docker-ce
-    description: Docker-CE YUM repo
-    baseurl: https://download.docker.com/linux/centos/7/$basearch/stable
-    gpgcheck: yes
-    gpgkey: https://download.docker.com/linux/centos/gpg
-
-- name: Install Docker
-  yum:
-
-    state: present
-    allow_downgrade: True
-    name:
-      - "docker-ce-{{ DOCKER_VERSION }}"
-      - "docker-ce-cli"
-      - "containerd.io-{{ CONTAINERD_VERSION }}"
+- import_tasks: ./distros/lazy-mode.yml
+  when: ansible_distribution != 'CentOS'
 
 - name: Ensure Docker Config Directory Exist
   file: >
@@ -39,22 +10,16 @@
     recurse=yes
     state=directory
 
-#- name: Ensure Global Config Directory Exist
-#  file: >
-#    path=/configs/docker
-#    recurse=yes
-#    state=directory
-
 - name: Copy Docker Config Files
   copy: src={{ item.src }} dest={{ item.dest }}
   with_items:
     - { src: '{{ DOCKER_AUTH_FILE }}', dest: '/root/.docker/config.json' }
-#    - { src: '{{ DOCKER_AUTH_FILE }}', dest: '/configs/docker/config.json' }
   when: DOCKER_AUTH_FILE is defined
 
 
 - name: Render Docker Service Files
   template: src={{ item.src }} dest={{ item.dest }}
+  notify: "restart docker"
   with_items:
     - src: 'docker-garbage-collector.service'
       dest: '/etc/systemd/system/'
@@ -62,13 +27,6 @@
       dest: '/etc/systemd/system/'
     - src: 'daemon.json'
       dest: '/etc/docker/'
-
-- name: Restart Docker
-  systemd:
-    name: docker
-    enabled: yes
-    daemon_reload: yes
-    state: restarted
 
 - name: Enable Garbage Collector
   systemd:
