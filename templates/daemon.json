@@ -1,8 +1,10 @@
 {
-  "exec-opts": [{{ DOCKER_OPTS | default('"native.cgroupdriver=cgroupfs"') }}],
+  "exec-opts": [{{ DOCKER_OPTS | default('"native.cgroupdriver=systemd"') }}],
   "registry-mirrors": {{ DOCKER_MIRROR_HOSTS }},
+  "log-driver": "json-file",
   "log-opts" : {
     "max-file" : "{{ DOCKER_LOG_MAX_FILE }}",
     "max-size" : "{{ DOCKER_LOG_MAX_SIZE }}"
-  }
+  },
+  "storage-driver": "overlay2"
 }
