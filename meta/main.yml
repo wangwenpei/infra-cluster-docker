@@ -1,15 +1,19 @@
+---
+dependencies: []
+
 galaxy_info:
   author: wangwenpei
-  role_name: infra-cluster-docker
-  description: Install Newer Docker-CE for CentOS.
-  company: 1024.engineer
+  role_name: docker
+  description: Install Newer Docker-CE for Debian.
+  company: "atom.engineer"
   license: GPLv3
-  min_ansible_version: 2.0
+  min_ansible_version: 2.2
   platforms:
-  - name: EL
-    versions:
-    - 7
+    - name: Ubuntu
+      versions:
+      - all
+    - name: Debian
+      versions:
+      - all
   galaxy_tags:
     - docker
-
-dependencies: []
